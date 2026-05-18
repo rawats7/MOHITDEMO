@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>YAAR WIN </title>
+    <style>
+        /* … all previous styles remain identical … */
+        :root {
+            --neon-red: #ff003c;
+            --neon-gold: #FFD700;
+            --dark-bg: #1a0005;
+            --body-gradient: linear-gradient(135deg, #33000b 0%, #1a0005 50%, #0a0002 100%);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-top: env(safe-area-inset-top, 0px);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: #0a0002;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            touch-action: manipulation;
+        }
+        #iframeContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            z-index: 1;
+            display: none;
+            background: #000;
+        }
+        #iframeContainer.active {
+            display: block;
+        }
+        #targetIframe {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            border: none;
+            display: block;
+            background: #fff;
+        }
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            z-index: 9999;
+            background: var(--body-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #loginOverlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .login-card {
+            width: 320px;
+            max-width: 90vw;
+            background: rgba(10, 0, 2, 0.95);
+            border: 1.5px solid var(--neon-red);
+            border-radius: 20px;
+            padding: 28px 22px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(255, 0, 60, 0.5), inset 0 0 30px rgba(255, 0, 60, 0.15);
+            position: relative;
+            text-align: center;
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 16px;
+            background: linear-gradient(180deg, #220008, #0a0002);
+            border-radius: 10px 10px 0 0;
+            border: 1.5px solid var(--neon-red);
+            border-bottom: none;
+            box-shadow: 0 -4px 10px rgba(255, 0, 60, 0.3);
+        }
+        .login-card::after {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 16px;
+            background: linear-gradient(0deg, #220008, #0a0002);
+            border-radius: 0 0 10px 10px;
+            border: 1.5px solid var(--neon-red);
+            border-top: none;
+            box-shadow: 0 4px 10px rgba(255, 0, 60, 0.3);
+        }
+        .login-brand {
+            font-weight: 900;
+            font-size: 14px;
+            color: var(--neon-gold);
+            text-shadow: 0 0 12px var(--neon-gold);
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .login-brand::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: var(--neon-red);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-red);
+            animation: pulse 1.5s infinite;
+        }
+        .login-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            color: #ccc;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 14px;
+            text-align: left;
+        }
+        .input-group label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--neon-gold);
+            letter-spacing: 1px;
+            text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+            display: block;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 11px 14px;
+            background: #0a0002;
+            border: 1.5px solid rgba(255, 0, 60, 0.5);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            letter-spacing: 1px;
+            outline: none;
+            transition: all 0.25s;
+            box-shadow: inset 0 0 10px rgba(255, 0, 60, 0.15);
+        }
+        .input-group input:focus {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.4), inset 0 0 15px rgba(255, 0, 60, 0.25);
+        }
+        .input-group input::placeholder {
+            color: #555;
+            letter-spacing: 0px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(180deg, #1a0005, #000);
+            border: 1.5px solid #4d0012;
+            border-top: 2px solid #ff4d79;
+            border-radius: 10px;
+            color: var(--neon-gold);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+            transition: all 0.2s;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+        .login-btn:active {
+            transform: scale(0.96);
+            background: var(--neon-red);
+            color: #fff;
+            border-color: var(--neon-red);
+            text-shadow: none;
+            box-shadow: 0 0 25px var(--neon-red);
+        }
+        .login-error {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            color: var(--neon-red);
+            text-shadow: 0 0 8px var(--neon-red);
+            margin-top: 8px;
+            min-height: 16px;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .login-error.shake {
+            animation: shake 0.5s ease;
+        }
+
+        /* floating mini button */
+        #miniBtn {
+            width: 60px;
+            height: 60px;
+            background: var(--body-gradient);
+            border-radius: 50%;
+            border: 2px solid var(--neon-red);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), 0 0 18px rgba(255, 0, 60, 0.65);
+            display: none; /* hidden by default, shown after login */
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            position: fixed;
+            z-index: 9998;
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+            animation: floatPulse 3s ease-in-out infinite;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: none;
+        }
+        #miniBtn:active {
+            cursor: grabbing;
+        }
+        #miniBtn.dragging {
+            animation: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.95), 0 0 30px rgba(255, 0, 60, 0.9);
+            transition: box-shadow 0.15s;
+        }
+        #miniBtn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+            pointer-events: none;
+        }
+        #miniBtn.visible {
+            display: flex;
+        }
+
+        /* main panel */
+        #main {
+            width: 240px;
+            max-width: 85vw;
+            background: var(--body-gradient);
+            border-radius: 20px;
+            padding: 12px;
+            border: 1.5px solid var(--neon-red);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 0, 60, 0.5), inset 0 0 20px rgba(255, 0, 60, 0.3);
+            display: none;
+            flex-direction: column;
+            position: fixed;
+            z-index: 10000;
+            transition: box-shadow 0.3s;
+        }
+        #main.dragging-panel {
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(255, 0, 60, 0.8);
+            transition: box-shadow 0.15s;
+        }
+        #main::before {
+            content: '';
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 18px;
+            background: linear-gradient(180deg, #220008, #0a0002);
+            border-radius: 12px 12px 0 0;
+            border: 1.5px solid var(--neon-red);
+            border-bottom: none;
+            box-shadow: 0 -5px 10px rgba(255, 0, 60, 0.2);
+            z-index: -1;
+            pointer-events: none;
+        }
+        #main::after {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 18px;
+            background: linear-gradient(0deg, #220008, #0a0002);
+            border-radius: 0 0 12px 12px;
+            border: 1.5px solid var(--neon-red);
+            border-top: none;
+            box-shadow: 0 5px 10px rgba(255, 0, 60, 0.2);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            cursor: grab;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 0, 60, 0.4);
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .header:active {
+            cursor: grabbing;
+        }
+        .brand-title {
+            font-weight: 900;
+            font-size: 11px;
+            color: var(--neon-gold);
+            text-shadow: 0 0 8px var(--neon-gold);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            pointer-events: none;
+        }
+        .brand-title::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--neon-red);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-red);
+        }
+        #cls-btn {
+            color: var(--neon-red);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-shadow: 0 0 6px var(--neon-red);
+            padding: 4px 8px;
+            z-index: 10;
+            touch-action: manipulation;
+        }
+        #cls-btn:hover {
+            text-shadow: 0 0 14px var(--neon-red);
+        }
+        .display-bezel {
+            width: 100%;
+            height: 105px;
+            background: #0a0002;
+            border-radius: 12px;
+            padding: 4px;
+            border: 1.5px solid var(--neon-red);
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.3), inset 0 0 20px rgba(255, 0, 60, 0.2);
+            position: relative;
+            pointer-events: auto;
+        }
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #220005 0%, var(--dark-bg) 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 0, 60, 0.5);
+            box-shadow: inset 0 0 15px rgba(255, 0, 60, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px 8px;
+        }
+        .screen::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0px, rgba(0, 0, 0, 0.4) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            opacity: 0.5;
+            z-index: 5;
+        }
+        .screen-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .status-led {
+            font-size: 9px;
+            color: var(--neon-red);
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+        .led-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--neon-red);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-red);
+            animation: pulse 1.5s infinite;
+        }
+        .period-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 7.5px;
+            color: #fff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            white-space: nowrap;
+        }
+        .res-big {
+            font-weight: 900;
+            font-size: 24px;
+            color: var(--neon-gold);
+            text-shadow: 0 0 15px var(--neon-gold);
+            z-index: 10;
+            text-align: center;
+            white-space: nowrap;
+            letter-spacing: 2px;
+            margin-top: 4px;
+            line-height: 1.2;
+            pointer-events: none;
+        }
+        .screen-bottom {
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .terminal-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 8px;
+            color: var(--neon-gold);
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px var(--neon-gold);
+        }
+        .loading-laser {
+            position: absolute;
+            top: 0;
+            left: -10%;
+            width: 2px;
+            height: 100%;
+            background: #fff;
+            box-shadow: 0 0 15px 5px var(--neon-red);
+            z-index: 8;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .laser-scan {
+            animation: horizontalScan 1.2s ease-in-out infinite;
+            opacity: 1;
+        }
+        .btn-wrap {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            width: 100%;
+            height: 32px;
+        }
+        .watch-btn {
+            flex: 3;
+            background: linear-gradient(180deg, #1a0005, #000);
+            border: 1px solid #4d0012;
+            border-top: 1.5px solid #ff4d79;
+            border-radius: 8px;
+            color: var(--neon-gold);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            touch-action: manipulation;
+        }
+        .watch-btn:active {
+            transform: scale(0.95);
+            background: var(--neon-red);
+            color: #fff;
+            border-color: var(--neon-red);
+            text-shadow: none;
+            box-shadow: 0 0 18px var(--neon-red);
+        }
+        .btn-tg {
+            flex: 1;
+            background: rgba(255, 0, 60, 0.1);
+            border: 1px solid #ff003c;
+            border-top: 1.5px solid #ff4d79;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.15s;
+            box-shadow: inset 0 0 10px rgba(255, 0, 60, 0.2);
+            touch-action: manipulation;
+        }
+        .btn-tg svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--neon-gold);
+            filter: drop-shadow(0 0 5px var(--neon-gold));
+            pointer-events: none;
+        }
+        .btn-tg:active {
+            transform: scale(0.92);
+            background: var(--neon-red);
+        }
+        .btn-tg:active svg {
+            fill: #fff;
+            filter: none;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes floatPulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        @keyframes horizontalScan {
+            0% { left: -10%; }
+            100% { left: 110%; }
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(4px); }
+        }
+        .blink { animation: blinker 1s step-end infinite; }
+
+        @media (max-width: 380px) {
+            #main { width: 220px; padding: 10px; border-radius: 16px; }
+            #main::before, #main::after { width: 70px; height: 14px; }
+            #main::before { top: -12px; }
+            #main::after { bottom: -12px; }
+            .display-bezel { height: 90px; }
+            .res-big { font-size: 20px; }
+            .brand-title { font-size: 10px; }
+            .btn-wrap { height: 28px; gap: 4px; }
+            .watch-btn { font-size: 9px; }
+            #miniBtn { width: 50px; height: 50px; }
+            .login-card { padding: 22px 16px; }
+            .login-brand { font-size: 12px; }
+        }
+        @media (min-width: 768px) {
+            #main { width: 260px; }
+            .display-bezel { height: 115px; }
+            .res-big { font-size: 26px; }
+            #miniBtn { width: 65px; height: 65px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="iframeContainer">
+        <iframe id="targetIframe" src="" title="Target Site" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <div id="loginOverlay">
+        <div class="login-card">
+            <div class="login-brand">MOHITxVIP</div>
+            <div class="login-subtitle">SECURE ACCESS PORTAL</div>
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="usernameInput" placeholder="Enter username" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter password" autocomplete="off">
+            </div>
+            <button class="login-btn" id="loginBtn">AUTHENTICATE</button>
+            <div class="login-error" id="loginError"></div>
+        </div>
+    </div>
+
+    <div id="miniBtn" class="visible" title="DANGER x PYTHON">
+        <img src="mohit.png" alt="AI">
+    </div>
+
+    <div id="main">
+        <div class="header" id="dragHeader">
+            <span class="brand-title">DANGER x PYTHON</span>
+            <div id="cls-btn">✕</div>
+        </div>
+        <div class="display-bezel">
+            <div class="screen" id="innerScreen"></div>
+        </div>
+        <div id="btnArea1" class="btn-wrap"></div>
+        <div id="btnArea2" class="btn-wrap"></div>
+    </div>
+
+    <script>
+        (function() {
+            const VALID_USERNAME = 'mohit';
+            const VALID_PASSWORD = 'mohit';
+            const TARGET_URL = 'https://yaarwin.org/#/register?invitationCode=75314887711';
+            const API_URL = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=';
+
+            const loginOverlay = document.getElementById('loginOverlay');
+            const usernameInput = document.getElementById('usernameInput');
+            const passwordInput = document.getElementById('passwordInput');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+            const iframeContainer = document.getElementById('iframeContainer');
+            const targetIframe = document.getElementById('targetIframe');
+            const miniBtn = document.getElementById('miniBtn');
+            const mainPanel = document.getElementById('main');
+            const dragHeader = document.getElementById('dragHeader');
+            const clsBtn = document.getElementById('cls-btn');
+            const innerScreen = document.getElementById('innerScreen');
+            const btnArea1 = document.getElementById('btnArea1');
+            const btnArea2 = document.getElementById('btnArea2');
+
+            let isLoggedIn = false;
+            let isScanning = false;
+            let lastAutoPeriod = '';
+            let mainPanelDragged = false;
+            let storedMainPos = { left: null, top: null };
+
+            let miniPos = { left: null, top: null };
+            let mainPos = { left: null, top: null };
+
+            function initMiniPosition() {
+                const size = miniBtn.offsetWidth || 60;
+                const margin = 16;
+                miniPos.left = window.innerWidth - size - margin;
+                miniPos.top = window.innerHeight - size - margin - 20;
+                clampPosition(miniPos, size, size);
+                applyMiniPosition();
+            }
+
+            function applyMiniPosition() {
+                miniBtn.style.left = miniPos.left + 'px';
+                miniBtn.style.top = miniPos.top + 'px';
+                miniBtn.style.right = 'auto';
+                miniBtn.style.bottom = 'auto';
+            }
+
+            function clampPosition(pos, elWidth, elHeight) {
+                const maxLeft = window.innerWidth - elWidth;
+                const maxTop = window.innerHeight - elHeight;
+                pos.left = Math.max(0, Math.min(pos.left, maxLeft));
+                pos.top = Math.max(0, Math.min(pos.top, maxTop));
+            }
+
+            function centerMainPanel() {
+                const panelWidth = mainPanel.offsetWidth || 240;
+                const panelHeight = mainPanel.offsetHeight || 250;
+                mainPos.left = (window.innerWidth - panelWidth) / 2;
+                mainPos.top = (window.innerHeight - panelHeight) / 2;
+                clampPosition(mainPos, panelWidth, panelHeight);
+                applyMainPosition();
+            }
+
+            function applyMainPosition() {
+                mainPanel.style.left = mainPos.left + 'px';
+                mainPanel.style.top = mainPos.top + 'px';
+                mainPanel.style.transform = 'none';
+            }
+
+            function applyMainCentered() {
+                mainPanel.style.left = '50%';
+                mainPanel.style.top = '50%';
+                mainPanel.style.transform = 'translate(-50%, -50%)';
+            }
+
+            // Draggable logic (unchanged)
+            function makeDraggable(dragHandle, targetEl, posRef, onDragStart, onDrag, onDragEnd) {
+                let dragging = false;
+                let startX, startY, origLeft, origTop;
+                let totalMove = 0;
+                const DRAG_THRESHOLD = 4;
+
+                function getClientX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+                function getClientY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
+
+                function onStart(e) {
+                    dragging = true;
+                    totalMove = 0;
+                    const rect = targetEl.getBoundingClientRect();
+                    origLeft = rect.left;
+                    origTop = rect.top;
+                    startX = getClientX(e);
+                    startY = getClientY(e);
+                    targetEl.classList.add(targetEl === mainPanel ? 'dragging-panel' : 'dragging');
+                    if (targetEl === mainPanel) {
+                        targetEl.style.transform = 'none';
+                        targetEl.style.left = origLeft + 'px';
+                        targetEl.style.top = origTop + 'px';
+                        mainPos.left = origLeft;
+                        mainPos.top = origTop;
+                    }
+                    if (targetEl === miniBtn && miniBtn.style.animation) {
+                        miniBtn.style.animation = 'none';
+                    }
+                    if (onDragStart) onDragStart();
+                    e.preventDefault();
+                }
+
+                function onMove(e) {
+                    if (!dragging) return;
+                    const dx = getClientX(e) - startX;
+                    const dy = getClientY(e) - startY;
+                    totalMove = Math.abs(dx) + Math.abs(dy);
+                    let newLeft = origLeft + dx;
+                    let newTop = origTop + dy;
+                    const elWidth = targetEl.offsetWidth;
+                    const elHeight = targetEl.offsetHeight;
+                    newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - elWidth));
+                    newTop = Math.max(0, Math.min(newTop, window.innerHeight - elHeight));
+                    targetEl.style.left = newLeft + 'px';
+                    targetEl.style.top = newTop + 'px';
+                    targetEl.style.transform = 'none';
+                    posRef.left = newLeft;
+                    posRef.top = newTop;
+                    if (targetEl === mainPanel) {
+                        mainPanelDragged = true;
+                        storedMainPos.left = newLeft;
+                        storedMainPos.top = newTop;
+                    }
+                    if (onDrag) onDrag(newLeft, newTop);
+                }
+
+                function onEnd(e) {
+                    if (!dragging) return;
+                    dragging = false;
+                    targetEl.classList.remove('dragging-panel', 'dragging');
+                    if (targetEl === miniBtn) {
+                        miniBtn.style.animation = 'floatPulse 3s ease-in-out infinite';
+                    }
+                    if (onDragEnd) onDragEnd(totalMove < DRAG_THRESHOLD);
+                    if (totalMove < DRAG_THRESHOLD) {
+                        return true; // click
+                    }
+                    return false;
+                }
+
+                dragHandle.addEventListener('mousedown', function(e) {
+                    if (e.target === clsBtn) return;
+                    onStart(e);
+                });
+                document.addEventListener('mousemove', function(e) {
+                    if (dragging) { onMove(e); e.preventDefault(); }
+                });
+                document.addEventListener('mouseup', function(e) {
+                    if (dragging) {
+                        const wasClick = onEnd(e);
+                        if (wasClick && targetEl === miniBtn && totalMove < DRAG_THRESHOLD) {
+                            toggleWidget();
+                        }
+                    }
+                });
+
+                dragHandle.addEventListener('touchstart', function(e) {
+                    if (e.target === clsBtn) return;
+                    onStart(e);
+                }, { passive: false });
+                document.addEventListener('touchmove', function(e) {
+                    if (dragging) { onMove(e); e.preventDefault(); }
+                }, { passive: false });
+                document.addEventListener('touchend', function(e) {
+                    if (dragging) {
+                        const wasClick = onEnd(e);
+                        if (wasClick && targetEl === miniBtn && totalMove < DRAG_THRESHOLD) {
+                            toggleWidget();
+                        }
+                    }
+                });
+            }
+
+            makeDraggable(miniBtn, miniBtn, miniPos);
+            makeDraggable(dragHeader, mainPanel, mainPos);
+
+            // ---------- TOGGLE LOGIC (THE FIX) ----------
+            function toggleWidget() {
+                if (!isLoggedIn) return;
+                // If main panel is currently displayed, hide it and show circle
+                if (mainPanel.style.display === 'flex') {
+                    closeMainPanel();
+                } else {
+                    openMainPanel();
+                }
+            }
+
+            function openMainPanel() {
+                if (!isLoggedIn) return;
+                // Save current mini button position (it will be hidden)
+                if (mainPanelDragged && storedMainPos.left !== null) {
+                    mainPos.left = storedMainPos.left;
+                    mainPos.top = storedMainPos.top;
+                    clampPosition(mainPos, mainPanel.offsetWidth || 240, mainPanel.offsetHeight || 250);
+                    applyMainPosition();
+                } else {
+                    applyMainCentered();
+                }
+                mainPanel.style.display = 'flex';
+                mainPanel.style.animation = 'none';
+                mainPanel.offsetHeight;
+                mainPanel.style.animation = 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+                // Hide the mini circle
+                miniBtn.classList.remove('visible');
+                renderMainScreen();
+                isScanning = false;
+            }
+
+            function closeMainPanel() {
+                const rect = mainPanel.getBoundingClientRect();
+                storedMainPos.left = rect.left;
+                storedMainPos.top = rect.top;
+                mainPanelDragged = true;
+                mainPanel.style.display = 'none';
+                mainPanel.style.animation = 'none';
+                // Show the mini circle again
+                miniBtn.classList.add('visible');
+                // Reapply animation
+                miniBtn.style.animation = 'floatPulse 3s ease-in-out infinite';
+            }
+
+            // ---------- RENDER MAIN SCREEN ----------
+            function renderMainScreen() {
+                innerScreen.innerHTML = `
+                    <div class='screen-top'>
+                        <div class='status-led'><span class='led-dot'></span> STANDBY</div>
+                        <div class='period-badge'>ID: -----</div>
+                    </div>
+                    <div class='res-big'>[ READY ]</div>
+                    <div class='screen-bottom'>
+                        <div class='terminal-text'>AWAITING INPUT<span class='blink'>_</span></div>
+                    </div>
+                `;
+                btnArea1.innerHTML = `<button class='watch-btn' id='hackBtn'>INITIATE HACK</button>`;
+                btnArea2.innerHTML = `
+                    <div class='btn-tg' id='tgBtn'>
+                        <svg viewBox='0 0 24 24'><path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.054 5.56-5.022c.242-.213-.054-.333-.373-.121l-6.869 4.326-2.96-.924c-.643-.203-.658-.643.136-.953l11.55-4.458c.535-.199 1.005.128.844.943z'/></svg>
+                    </div>
+                `;
+                setTimeout(() => {
+                    const hackBtn = document.getElementById('hackBtn');
+                    const tgBtn = document.getElementById('tgBtn');
+                    if (hackBtn) hackBtn.addEventListener('click', startHack);
+                    if (tgBtn) tgBtn.addEventListener('click', () => {
+                        window.open('https://t.me/+DWlCAgThbj5lZDg1', '_blank');
+                    });
+                }, 50);
+            }
+
+            // ---------- HACK & API ----------
+            async function fetchLiveResult() {
+                const response = await fetch(API_URL + Date.now(), { cache: 'no-store' });
+                const data = await response.json();
+                let list = [];
+                if (Array.isArray(data?.data?.list)) list = data.data.list;
+                else if (Array.isArray(data?.data)) list = data.data;
+                else if (Array.isArray(data?.list)) list = data.list;
+                else if (Array.isArray(data?.rows)) list = data.rows;
+                else if (Array.isArray(data?.data?.records)) list = data.data.records;
+                if (!list.length) throw new Error('No data');
+                list.sort((a, b) => String(b.issueNumber || b.period || '').localeCompare(String(a.issueNumber || a.period || '')));
+                const latest = list[0];
+                let period = String(latest.issueNumber || latest.issue || latest.period || latest.periodNo || latest.Id || '');
+                let rawNum = '';
+                if (latest.number !== undefined && latest.number !== null) rawNum = String(latest.number);
+                else if (latest.result !== undefined && latest.result !== null) rawNum = String(latest.result);
+                else if (latest.openCode !== undefined && latest.openCode !== null) rawNum = String(latest.openCode);
+                else if (latest.open !== undefined && latest.open !== null) rawNum = String(latest.open);
+                else if (latest.code !== undefined && latest.code !== null) rawNum = String(latest.code);
+                if (!period || rawNum === '') throw new Error('Incomplete data');
+                const num = parseInt(rawNum, 10);
+                let resultText = '';
+                if (!isNaN(num)) {
+                    const type = (num >= 5) ? 'BIG' : 'SMALL';
+                    resultText = `${type} ${num}`;
+                } else {
+                    resultText = rawNum;
+                }
+                return { period, result: resultText, rawNumber: rawNum };
+            }
+
+            async function startHack() {
+                if (isScanning) return;
+                isScanning = true;
+                btnArea1.innerHTML = `<button class='watch-btn' style='color:#888; pointer-events:none;'>DECRYPTING...</button>`;
+                btnArea2.style.display = 'none';
+                innerScreen.innerHTML = `
+                    <div class='screen-top'>
+                        <div class='status-led'><span class='led-dot'></span> UPLINK</div>
+                        <div class='period-badge'>LIVE</div>
+                    </div>
+                    <div class='loading-laser laser-scan'></div>
+                    <div class='res-big' style='font-size: 18px;'>DECRYPTING</div>
+                    <div class='screen-bottom'>
+                        <div class='terminal-text'>BRUTEFORCE<span class='blink'>_</span></div>
+                    </div>
+                `;
+                try {
+                    const resultData = await fetchLiveResult();
+                    innerScreen.innerHTML = `
+                        <div class='screen-top'>
+                            <div class='status-led'><span class='led-dot'></span> SECURED</div>
+                            <div class='period-badge'>ID: ${resultData.period}</div>
+                        </div>
+                        <div class='res-big'>${resultData.result}</div>
+                        <div class='screen-bottom'>
+                            <div class='terminal-text'>CONFIDENCE: 98.9%</div>
+                        </div>
+                    `;
+                    btnArea1.innerHTML = `<button class='watch-btn' id='hackBtn'>RE-SCAN SYSTEM</button>`;
+                    btnArea2.style.display = 'flex';
+                    btnArea2.innerHTML = `
+                        <div class='btn-tg' id='tgBtn'>
+                            <svg viewBox='0 0 24 24'><path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.054 5.56-5.022c.242-.213-.054-.333-.373-.121l-6.869 4.326-2.96-.924c-.643-.203-.658-.643.136-.953l11.55-4.458c.535-.199 1.005.128.844.943z'/></svg>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        const hackBtn = document.getElementById('hackBtn');
+                        const tgBtn = document.getElementById('tgBtn');
+                        if (hackBtn) hackBtn.addEventListener('click', startHack);
+                        if (tgBtn) tgBtn.addEventListener('click', () => {
+                            window.open('https://t.me/+DWlCAgThbj5lZDg1', '_blank');
+                        });
+                    }, 50);
+                } catch (err) {
+                    console.error(err);
+                    innerScreen.innerHTML = `
+                        <div class='screen-top'>
+                            <div class='status-led' style='color:var(--neon-red);'><span class='led-dot'></span> ERROR</div>
+                            <div class='period-badge'>API_FAIL</div>
+                        </div>
+                        <div class='res-big' style='font-size:18px; color:var(--neon-red);'>FAILED</div>
+                        <div class='screen-bottom'>
+                            <div class='terminal-text' style='color:var(--neon-red);'>RETRY?</div>
+                        </div>
+                    `;
+                    btnArea1.innerHTML = `<button class='watch-btn' id='hackBtn'>RETRY HACK</button>`;
+                    btnArea2.style.display = 'flex';
+                    btnArea2.innerHTML = `
+                        <div class='btn-tg' id='tgBtn'>
+                            <svg viewBox='0 0 24 24'><path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.054 5.56-5.022c.242-.213-.054-.333-.373-.121l-6.869 4.326-2.96-.924c-.643-.203-.658-.643.136-.953l11.55-4.458c.535-.199 1.005.128.844.943z'/></svg>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        const hackBtn = document.getElementById('hackBtn');
+                        const tgBtn = document.getElementById('tgBtn');
+                        if (hackBtn) hackBtn.addEventListener('click', startHack);
+                        if (tgBtn) tgBtn.addEventListener('click', () => {
+                            window.open('https://t.me/+DWlCAgThbj5lZDg1', '_blank');
+                        });
+                    }, 50);
+                }
+                isScanning = false;
+            }
+
+            // Auto sync (unchanged)
+            async function autoSync() {
+                if (isScanning || !isLoggedIn) return;
+                try {
+                    const resultData = await fetchLiveResult();
+                    if (resultData.period !== lastAutoPeriod) {
+                        lastAutoPeriod = resultData.period;
+                        console.log('[AUTO] Latest period:', resultData.period, resultData.result);
+                    }
+                } catch (e) {}
+            }
+            setInterval(autoSync, 30000);
+
+            // Close button explicitly closes panel (circle returns)
+            clsBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeMainPanel();
+            });
+            clsBtn.addEventListener('touchend', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                closeMainPanel();
+            });
+
+            // Login handling (unchanged)
+            function attemptLogin() {
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+                if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                    loginError.textContent = '';
+                    loginError.classList.remove('shake');
+                    isLoggedIn = true;
+                    loginOverlay.classList.add('hidden');
+                    iframeContainer.classList.add('active');
+                    targetIframe.src = TARGET_URL;
+                    miniBtn.classList.add('visible');
+                    initMiniPosition();
+                    try { sessionStorage.setItem('dpx_logged_in', '1'); } catch (e) {}
+                    console.log('🔓 Access granted.');
+                } else {
+                    loginError.textContent = '⛔ ACCESS DENIED — INVALID CREDENTIALS';
+                    loginError.classList.remove('shake');
+                    void loginError.offsetWidth;
+                    loginError.classList.add('shake');
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            }
+
+            loginBtn.addEventListener('click', attemptLogin);
+            passwordInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') attemptLogin();
+            });
+            usernameInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') passwordInput.focus();
+            });
+
+            function handleResize() {
+                if (isLoggedIn) {
+                    clampPosition(miniPos, miniBtn.offsetWidth || 60, miniBtn.offsetHeight || 60);
+                    applyMiniPosition();
+                    if (mainPanel.style.display === 'flex') {
+                        if (mainPanelDragged && storedMainPos.left !== null) {
+                            mainPos.left = storedMainPos.left;
+                            mainPos.top = storedMainPos.top;
+                            clampPosition(mainPos, mainPanel.offsetWidth || 240, mainPanel.offsetHeight || 250);
+                            storedMainPos.left = mainPos.left;
+                            storedMainPos.top = mainPos.top;
+                            applyMainPosition();
+                        } else {
+                            centerMainPanel();
+                            storedMainPos.left = mainPos.left;
+                            storedMainPos.top = mainPos.top;
+                        }
+                    }
+                }
+            }
+            window.addEventListener('resize', handleResize);
+            window.addEventListener('orientationchange', function() {
+                setTimeout(handleResize, 300);
+            });
+
+            function init() {
+                let wasLoggedIn = false;
+                try { wasLoggedIn = sessionStorage.getItem('dpx_logged_in') === '1'; } catch (e) {}
+                if (wasLoggedIn) {
+                    isLoggedIn = true;
+                    loginOverlay.classList.add('hidden');
+                    iframeContainer.classList.add('active');
+                    targetIframe.src = TARGET_URL;
+                    miniBtn.classList.add('visible');
+                    initMiniPosition();
+                } else {
+                    miniBtn.classList.remove('visible');
+                    usernameInput.focus();
+                }
+                mainPanel.style.display = 'none';
+                mainPanel.style.transform = 'translate(-50%, -50%)';
+                mainPanel.style.left = '50%';
+                mainPanel.style.top = '50%';
+            }
+            init();
+            console.log('🚀 DANGER x PYTHON | Toggle fixed: tap circle → panel, close → circle');
+        })();
+    </script>
+</body>
+</html>
